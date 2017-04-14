@@ -1,0 +1,8 @@
+<h1>signup information</h1>
+<form action="{% url 'polls:signup_fun' %}" method='post'>
+{% csrf_token %}
+<label>email address:</label>  <input type='email' name='email' /> <br/>
+<label>password:</label>  <input type='password' name='password' /> <br/>
+<label>confirm password:</label>  <input type='password' name='confirm_password' /> <br/>
+<input type='submit' value='submit' />
+</form>

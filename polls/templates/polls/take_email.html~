@@ -1,0 +1,7 @@
+<h1>email confermation <h1/>
+<form action="{% url 'polls:confermation_email' %}" method='post'>
+{% csrf_token %}
+<label>email</label>  <input type='text' name='email'/> <br/>
+<input type='submit'/>
+</form>
+

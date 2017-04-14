@@ -1,0 +1,15 @@
+from django.conf.urls import url
+from polls import views
+app_name = 'polls'
+urlpatterns = [
+url(r'^$', views.login_page, name='login_page'),
+url(r'^take_email$', views.take_email, name='take_email'),
+url(r'^confirmation_email$', views.con_email, name='confirmation_email'),
+url(r'^signup/$', views.signup, name='signup'),
+url(r'^signup_fun/$', views.signup_fun, name='signup_fun'),
+url(r'^check/$', views.check, name='check'), 
+#url(r'^$', views.IndexView.as_view(), name='index'),
+url(r'^(?P<pk>[0-9]+)/$',views.DetailView.as_view(), name='detail'),
+url(r'^(?P<pk>[0-9]+)/results/$',views.ResultsView.as_view(), name='results'),
+url(r'^(?P<question_id>[0-9]+)/vote/$',views.vote, name='vote'),
+]

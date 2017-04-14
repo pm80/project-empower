@@ -1,0 +1,78 @@
+from django.http import HttpResponseRedirect, HttpResponse
+from django.core.urlresolvers import reverse
+from django.shortcuts import render, get_object_or_404
+from django.views import generic
+from django.utils import timezone
+from django.core.mail import send_mail
+
+import smtplib
+
+from polls.models import Question, Choice, LoginInfo
+
+def login_page(request):
+    context = {'a':'b'}
+    return render(request,'polls/login_page.html',context)
+def check(request):
+    queryset = list(LoginInfo.objects.all())
+    context = {'latest_question_list':Question.objects.all()}
+    for i in queryset:
+        if ((i.user == request.POST['user'])and(i.password == request.POST['password'])):
+            break
+    else:
+        return HttpResponse('incorrect username or password.' )
+    return render(request, 'polls/index.html', context)
+def signup(request):
+    context = {}
+    return render(request, 'polls/signup.html', context)
+def signup_fun(request):
+    context = {}
+    if request.POST['password'] != request.POST['confirm_password']:
+        return HttpResponse('password does not match')
+    else:
+        LoginInfo(password = request.POST['password'], user = request.POST['user']).save()
+        '''server = smtplib.SMTP('smtp.gmail.com')
+        server.starttls()
+        server.login('pmchaudhary80@gmail.com','jwtpjdmw')
+        server.sendmail('pmchaudhary80@gmail.com','jnkmbn@gmail.com','message:sucess')
+        server.quit()'''
+        send_mail('subject','message','pmchaudhary80@gmail.com',['zeeley12@gmail.com','praveen.chaudhary.chy14@itbhu.ac.in'])
+
+
+        return HttpResponseRedirect(reverse('polls:login_page'))
+def take_email(request):
+	context = {}
+	return render(request, 'polls/take_email.html', context)
+def con_email(request):
+	send_mail('subject','message','pmchaudhary80@gmail.com',[request.POST['email']])
+	return HttpResponse('check email')
+        
+class IndexView(generic.ListView):
+    template_name = 'polls/index.html'
+    context_object_name = 'latest_question_list'
+    def get_queryset(self):
+        return Question.objects.filter(
+            pub_date__lte=timezone.now()
+            ).order_by('-pub_date')[:5]
+class DetailView(generic.DetailView):
+    model = Question
+    template_name = 'polls/detail.html'
+    def get_queryset(self):
+        return Question.objects.filter(pub_date__lte=timezone.now())
+class ResultsView(generic.DetailView):
+    model = Question
+    template_name = 'polls/results.html'
+    def get_queryset(self):
+        return Question.objects.filter(pub_date__lte=timezone.now())
+def vote(request, question_id):
+    question = get_object_or_404(Question, pk=question_id)
+    try:
+        selected_choice = question.choice_set.get(pk=request.POST['choice'])
+    except (KeyError, Choice.DoesNotExist):
+        return render(request, 'polls/detail.html', {
+            'question':question,
+            'error_message':"You didn't select a choice.",
+            })
+    else:
+        selected_choice.votes += 1
+        selected_choice.save()
+        return HttpResponseRedirect(reverse('polls:results', args=(question.id,)))

@@ -1,0 +1,67 @@
+from django.db import models
+import datetime
+from django.utils import timezone
+
+# Create your models here.
+class Question(models.Model):
+    question_text = models.CharField(max_length=200)
+    pub_date = models.DateTimeField('date published')
+    def __unicode__(self):
+        return self.question_text
+    def was_published_recently(self):
+        return timezone.now() >= self.pub_date >= timezone.now() - datetime.timedelta(days=1)
+    was_published_recently.admin_order_field = 'pub_date'
+    was_published_recently.boolean = True
+    was_published_recently.short_description = 'Published recently?'
+class Choice(models.Model):
+    question = models.ForeignKey(Question,null=True, on_delete=models.SET_DEFAULT, default=8)
+    choice_text = models.CharField(max_length=200,blank=True)
+    votes = models.IntegerField(blank=True)
+    def __unicode__(self):
+        #return self.choice_text
+        return 'aa'
+class LoginInfo(models.Model):
+    user = models.CharField(max_length=50)
+    password = models.CharField(max_length=50)
+    def __unicode__(self):
+        return self.user
+class Blog(models.Model):
+	name = models.CharField(max_length=100)
+	tagline = models.TextField()
+	def __unicode__(self):
+		return self.name
+class Author(models.Model):
+	name = models.CharField(max_length=50)
+	email = models.EmailField()
+	#blog = models.OneToOneField(Blog, default=0)
+	def __unicode__(self):
+		return self.name
+class Entry(models.Model):
+	blog = models.ForeignKey(Blog)
+	headline = models.CharField(max_length=255)
+	body_text = models.TextField()
+	pub_date = models.DateField()
+	mod_date = models.DateField()
+	a = models.ManyToManyField(Author, related_name='a')
+	au = models.ManyToManyField(Author, related_name='b')
+	n_comments = models.IntegerField()
+	n_pingbacks = models.IntegerField()
+	rating = models.IntegerField()
+	def __unicode__(self):
+		return self.headline
+class EntryDetail(models.Model):
+	entry = models.OneToOneField(Entry)
+	details = models.TextField()
+	def __unicode__(self):
+		return self.entry.headline + '_entry_detail'
+class Person(models.Model):
+	name = models.CharField(max_length=50)
+class Group(models.Model):
+	name = models.CharField(max_length=128)
+	members = models.ManyToManyField(Person, through='Membership', through_fields=('group', 'person'))
+class Membership(models.Model):
+	group = models.ForeignKey(Group)
+	person = models.ForeignKey(Person)
+	inviter = models.ForeignKey(Person, related_name="membership_invites")
+	invite_reason = models.CharField(max_length=64)
+    
